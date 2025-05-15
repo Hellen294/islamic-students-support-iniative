@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>لوحة التحكم - مرحباً بك</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      background: linear-gradient(to bottom left, #fff8e1, #fff);
+      font-family: 'Tahoma', sans-serif;
+      margin: 0;
+      padding: 0;
+      direction: rtl;
+      text-align: right;
+    }
+    .dashboard {
+      max-width: 700px;
+      margin: 60px auto;
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+      padding: 30px;
+    }
+    h2 {
+      color: #4e342e;
+      font-size: 26px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .info {
+      font-size: 18px;
+      line-height: 1.9;
+      color: #444;
+    }
+    .info span {
+      font-weight: bold;
+      color: #6d4c41;
+    }
+    .status {
+      background-color: #e8f5e9;
+      border: 1px solid #c8e6c9;
+      padding: 15px;
+      margin-top: 20px;
+      border-radius: 8px;
+      color: #2e7d32;
+      font-weight: bold;
+      text-align: center;
+    }
+    .loading {
+      text-align: center;
+      font-size: 20px;
+      color: #888;
+      padding-top: 100px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="dashboard" id="dashboard">
+    <div class="loading" id="loading">جاري تحميل بياناتك الشخصية...</div>
+  </div>
+
+  <!-- Firebase Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDzWe0sMFecKa9sHk30pXat5qrT4yDyuJ4",
+      authDomain: "soccer2-c47c2.firebaseapp.com",
+      databaseURL: "https://soccer2-c47c2-default-rtdb.firebaseio.com",
+      projectId: "soccer2-c47c2",
+      storageBucket: "soccer2-c47c2.appspot.com",
+      messagingSenderId: "942310698005",
+      appId: "1:942310698005:web:2f5230da671ef0b47db21c"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    function getQueryParam(param) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(param);
+    }
+
+    const uid = getQueryParam("uid");
+    const dashboard = document.getElementById("dashboard");
+    const loading = document.getElementById("loading");
+
+    if (uid) {
+      db.collection("users").doc(uid).get().then(doc => {
+        if (doc.exists) {
+          const data = doc.data();
+          loading.style.display = "none";
+
+          dashboard.innerHTML = `
+            <h2>مرحباً بك يا ${data.name}!</h2>
+            <div class="info">
+              <p><span>البريد الإلكتروني:</span> ${data.email}</p>
+              <p><span>رقم الهاتف:</span> ${data.phone}</p>
+              <p><span>تاريخ الميلاد:</span> ${data.dob}</p>
+              <p><span>كود بطاقة Apple:</span> ${data.giftCode}</p>
+              <p><span>تاريخ التسجيل:</span> ${data.createdAt.toDate().toLocaleDateString('ar-EG')}</p>
+            </div>
+            <div class="status">
+              حالة طلبك الحالية: ${data.status || 'قيد المراجعة'}
+            </div>
+          `;
+        } else {
+          loading.innerText = "لم يتم العثور على بيانات الحساب.";
+        }
+      }).catch(err => {
+        console.error(err);
+        loading.innerText = "حدث خطأ أثناء تحميل البيانات.";
+      });
+    } else {
+      loading.innerText = "المعرف غير صالح أو مفقود.";
+    }
+  </script>
+
+</body>
+</html>

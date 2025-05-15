@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>لوحة الإدارة - تحديث حالة المستخدمين</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: 'Tahoma', sans-serif;
+      background: #f1f8e9;
+      padding: 40px;
+    }
+    .admin-container {
+      max-width: 600px;
+      background: #fff;
+      margin: auto;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      color: #33691e;
+      margin-bottom: 30px;
+    }
+    select, button {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    label {
+      font-weight: bold;
+    }
+    .status-updated {
+      color: green;
+      text-align: center;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="admin-container">
+    <h2>تحديث حالة المستخدمين</h2>
+    <label for="userSelect">اختر المستخدم:</label>
+    <select id="userSelect"></select>
+
+    <label for="statusSelect">اختر الحالة:</label>
+    <select id="statusSelect">
+      <option value="تم تأكيد الدفع">تم تأكيد الدفع</option>
+      <option value="جاري معالجة المنحة">جاري معالجة المنحة</option>
+      <option value="يرجى إدخال بيانات البنك للسحب">يرجى إدخال بيانات البنك للسحب</option>
+    </select>
+
+    <button onclick="updateStatus()">تحديث الحالة</button>
+    <div id="updateMessage" class="status-updated"></div>
+  </div>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_AUTH_DOMAIN",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_STORAGE_BUCKET",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const userSelect = document.getElementById("userSelect");
+    const statusSelect = document.getElementById("statusSelect");
+    const updateMessage = document.getElementById("updateMessage");
+    let users = [];
+
+    // Load users into dropdown
+    db.collection("users").get().then(snapshot => {
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        const option = document.createElement("option");
+        option.value = doc.id;
+        option.text = `${data.name} - ${data.email}`;
+        userSelect.appendChild(option);
+      });
+    });
+
+    function updateStatus() {
+      const uid = userSelect.value;
+      const status = statusSelect.value;
+
+      if (!uid || !status) return;
+
+      db.collection("users").doc(uid).update({ status })
+        .then(() => {
+          updateMessage.innerText = "تم تحديث الحالة بنجاح!";
+        })
+        .catch(err => {
+          updateMessage.innerText = "حدث خطأ أثناء التحديث.";
+          console.error(err);
+        });
+    }
+  </script>
+
+</body>
+</html>

